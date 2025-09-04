@@ -21,8 +21,17 @@ begin
 end;
 
 procedure OnCargaMasivaClick(widget: PGtkWidget; data: gpointer); cdecl;
-begin
+  var
+    status: Boolean;
+  begin
+  status := jsonTools.UploadUsersFromJson(json_file_prueva);
   Writeln('REALIZANDO-CARGA-MASIVA');
+  if status then 
+  begin
+    ShowSuccessMessage(HomeRootWindow, 'Carga de archivo JSON', 'Los usuarios han sioo cargados con exito');
+  end
+  else
+    ShowErrorMessage(HomeRootWindow,'Carga de archivo JSON', 'A ocurrido un error, verificar el archivo JSON');
 end;
 
 procedure OnRepUserClick(widget: PGtkWidget; data: gpointer); cdecl;

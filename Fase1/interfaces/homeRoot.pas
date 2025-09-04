@@ -7,9 +7,12 @@ procedure MostrarHomeRoot;
 implementation
 
 uses 
-    gtk2, glib2, login;
+    gtk2, glib2, login, interfaceTools, jsonTools, 
+    variables, filesTools, simpleLinkedList;
 var 
     HomeRootWindow: PGtkWidget;
+    btnCargaMasiva, btnRepUser, btnRepRel, btnComunidad, btnLogout: PGtkWidget;
+
 
 procedure CloseCurrentWindowAndShowHomeRoot(win: PGtkWidget);
 begin 
@@ -25,6 +28,7 @@ end;
 procedure OnRepUserClick(widget: PGtkWidget; data: gpointer); cdecl;
 begin
   Writeln('REPORTES-DE-USUARIO-GENERADOS');
+  filesTools.GenerateReports('user', 'Root Report',  LSL_U_GenerateDot());
 end;
 
 procedure OnRepRelClick(widget: PGtkWidget; data: gpointer); cdecl;

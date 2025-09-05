@@ -8,7 +8,9 @@ implementation
 
 uses 
     gtk2, glib2, 
-    login, Enviar_Correo, Programar_Correo, Agregar_Contacto, Actualizar_Perfil;
+    login, Enviar_Correo, Programar_Correo, 
+    Agregar_Contacto, Actualizar_Perfil, Bandeja_Entrada,
+    doubleLinkedList;
 var 
     HomeUserWindow: PGtkWidget;
 
@@ -20,7 +22,8 @@ end;
 
 procedure OnBandejaEntradaClick(widget: PGtkWidget; data: gpointer); cdecl;
 begin
-  Writeln('VIENDO-BANDEJA-ENTRADA');
+  gtk_widget_destroy(HomeUserWindow);
+  MostrarBandejaWindow;
 end;
 
 procedure OnEnviarClick(widget: PGtkWidget; data: gpointer); cdecl;
@@ -69,6 +72,9 @@ end;
 
 procedure OnLogoutClick(widget: PGtkWidget; data: gpointer); cdecl;
 begin
+  //LIMPIAR lista doblemente enlazada al cerrar sesión
+  LDE_C_Clear();
+
   gtk_widget_destroy(HomeUserWindow);
   Mostrarlogin;
 end;

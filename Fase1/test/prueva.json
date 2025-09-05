@@ -87,6 +87,30 @@
       "usuario" : "123",
       "telefono" : "jose@edd.com",
       "password" : "56183924"
+    },
+    {
+      "id" : 50,
+      "nombre" : "roberto",
+      "email" : "rob",
+      "usuario" : "1",
+      "telefono" : "1",
+      "password" : "25425425"
+    },
+    {
+      "id" : 26,
+      "nombre" : "1",
+      "email" : "1",
+      "usuario" : "1",
+      "telefono" : "1",
+      "password" : "1"
+    },
+    {
+      "id" : 80,
+      "nombre" : "0",
+      "email" : "0",
+      "usuario" : "5",
+      "telefono" : "5",
+      "password" : "0"
     }
   ]
 }

@@ -1,0 +1,44 @@
+{
+  "emails" : [
+    {
+      "id" : "",
+      "remitente" : "jose",
+      "destinatario" : "mitzep@edd.com",
+      "estado" : "NL",
+      "programado" : false,
+      "asunto" : "jeje",
+      "fecha" : "2025-09-05 12:24",
+      "mensaje" : "no se yo, este proyecto esta explicado como todo su culo"
+    },
+    {
+      "id" : "",
+      "remitente" : "mitzep@edd.com",
+      "destinatario" : "jose",
+      "estado" : "NL",
+      "programado" : false,
+      "asunto" : "ji",
+      "fecha" : "2025-09-05 12:28",
+      "mensaje" : "mitzep123"
+    },
+    {
+      "id" : "",
+      "remitente" : "1",
+      "destinatario" : "jose@edd.com",
+      "estado" : "NL",
+      "programado" : false,
+      "asunto" : "hola",
+      "fecha" : "2025-09-05 15:20",
+      "mensaje" : "jeje"
+    },
+    {
+      "id" : "",
+      "remitente" : "imurdock@edd.com",
+      "destinatario" : "jose",
+      "estado" : "NL",
+      "programado" : false,
+      "asunto" : "chi",
+      "fecha" : "2025-09-05 15:29",
+      "mensaje" : "cheñol"
+    }
+  ]
+}

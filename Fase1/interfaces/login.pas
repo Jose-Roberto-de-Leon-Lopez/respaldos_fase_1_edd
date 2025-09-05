@@ -9,7 +9,8 @@ implementation
 uses 
  gtk2, glib2, gdk2,
  homeRoot, homeUser, Crear_Cuenta, 
- variables, simpleLinkedList,interfaceTools;
+ variables, simpleLinkedList,interfaceTools, 
+ doubleLinkedList, jsonTools;
 
 var 
     entryUser, entryPass: PGtkWidget;
@@ -40,6 +41,12 @@ begin
       current_user_name := userData.name;
       current_user_username := userData.username;
 
+      //LIMPIAR lista de correos anteriores
+      LDE_C_Clear();
+        
+      //CARGAR correos del usuario actual desde JSON
+      LoadEmailsFromJson(json_file_email);
+ 
       writeln('INICIO-DE-SESIÓN-USUARIO-EXITOSO');
 
       // Si las credenciales son correctas, cerrar la ventana de login

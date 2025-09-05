@@ -12,6 +12,7 @@ var
     
     // File Json
     json_file_prueva: string = '/home/joselopez/Escritorio/Fase1/EDD-2S2025_202308202/Fase1/test/prueva.json';
+    json_file_email: string = '/home/joselopez/Escritorio/Fase1/EDD-2S2025_202308202/Fase1/test/email.json'; 
 
     // Credential root user
     root_user_email: string = 'root@edd.com';

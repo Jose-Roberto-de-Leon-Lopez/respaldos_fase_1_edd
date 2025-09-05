@@ -4,21 +4,28 @@ unit doubleLinkedList;
 
 interface
     type
-        TVehicleData = record
+        TEmailData = record
             id: string;
-            marca: string;
-            modelo: string;
-            propietario: string;
+            remitente: string;
+            destinatario: string; 
+            estado: string;      // 'NL' = No leído, 'L' = Leído
+            programado: Boolean;
+            asunto: string;
+            fecha: string;
+            mensaje: string;
         end;
 
-        TVehicleArray = array of TVehicleData;
+        TEmailArray = array of TEmailData;
 
-    procedure LDE_V_Insert(id, marca, modelo, propietario: string);
-    function  LDE_V_GenerateDot: string;
-    procedure LDE_V_Clear;
-    function LDE_V_GetVehiclesByOwner(email: string): TVehicleArray;
-    function LDE_V_GetVehicleById(id: string): TVehicleData;
-    procedure LDE_V_QuickSortById;
+    procedure LDE_C_Insert(id, remitente, destinatario, estado: string; programado: Boolean; 
+                          asunto, fecha, mensaje: string);
+    function  LDE_C_GenerateDot: string;
+    procedure LDE_C_Clear;
+    function LDE_C_GetEmailsByRecipient(destinatario: string): TEmailArray;
+    function LDE_C_GetEmailById(id: string): TEmailData;
+    procedure LDE_C_QuickSortBySubject;
+    procedure LDE_C_MarkAsRead(emailId: string);
+    function LDE_C_GetUnreadCount(destinatario: string): Integer;
 
 implementation
 
@@ -29,9 +36,13 @@ implementation
         PNode = ^TNode;
         TNode = record
             id: string;
-            marca: string;
-            modelo: string;
-            propietario: string;
+            remitente: string;
+            destinatario: string; 
+            estado: string;
+            programado: Boolean;
+            asunto: string;
+            fecha: string;
+            mensaje: string;
             Next: PNode;
             Prev: PNode;
         end;
@@ -63,15 +74,20 @@ implementation
         Result := Res;
     end;
 
-    procedure LDE_V_Insert(id, marca, modelo, propietario: string);
+    procedure LDE_C_Insert(id, remitente, destinatario, estado: string; programado: Boolean; 
+                          asunto, fecha, mensaje: string);
     var
         NewNode: PNode;
     begin
         New(NewNode);
         NewNode^.id := Trim(id);
-        NewNode^.marca := Trim(marca);
-        NewNode^.modelo := Trim(modelo);
-        NewNode^.propietario := Trim(propietario);
+        NewNode^.remitente := Trim(remitente);
+        NewNode^.destinatario := Trim(destinatario);
+        NewNode^.estado := Trim(estado);
+        NewNode^.programado := programado;
+        NewNode^.asunto := Trim(asunto);
+        NewNode^.fecha := Trim(fecha);
+        NewNode^.mensaje := Trim(mensaje);
         NewNode^.Next := nil;
         NewNode^.Prev := nil;
 
@@ -88,8 +104,7 @@ implementation
         end;
     end;
 
-
-    procedure LDE_V_Clear;
+    procedure LDE_C_Clear;
     var
         Current, Temp: PNode;
     begin
@@ -104,8 +119,7 @@ implementation
         Tail := nil;
     end;
 
-
-    function LDE_V_GenerateDot: string;
+    function LDE_C_GenerateDot: string;
     var
         SL: TStringList;
         Current: PNode;
@@ -120,7 +134,7 @@ implementation
         SL.Add('  nodesep=0.5;');
         SL.Add('');
         SL.Add('  subgraph cluster_0 {');
-        SL.Add('    label="Lista doblemente enlazada de vehículos";');
+        SL.Add('    label="Lista doblemente enlazada de correos";');
         SL.Add('    fontsize=14;');
         SL.Add('    color=black;');
         SL.Add('    style=filled;');
@@ -137,12 +151,12 @@ implementation
             while Current <> nil do
             begin
                 NodeName := Format('nodo%d', [Counter]);
-                SL.Add(Format('    %s [label="{%s \n %s \n %s \n %s}"];',
+                SL.Add(Format('    %s [label="{%s | %s | %s | %s}"];',
                     [NodeName,
-                    EscapeDotString(Current^.id),
-                    EscapeDotString(Current^.marca),
-                    EscapeDotString(Current^.modelo),
-                    EscapeDotString(Current^.propietario)]));
+                    EscapeDotString(Current^.asunto),
+                    EscapeDotString(Current^.remitente),
+                    EscapeDotString(Current^.fecha),
+                    EscapeDotString(Current^.estado)]));
 
                 if Current^.Next <> nil then
                 begin
@@ -165,139 +179,175 @@ implementation
         Result := ResultText;
     end;
 
-
-    function LDE_V_GetVehiclesByOwner(email: string): TVehicleArray;
+    function LDE_C_GetEmailsByRecipient(destinatario: string): TEmailArray;
     var
         Current: PNode;
-        Vehicles: TVehicleArray;
+        Emails: TEmailArray;
         Count: Integer;
     begin
         Count := 0;
         Current := Head;
-        SetLength(Vehicles, 0); 
+        SetLength(Emails, 0); 
 
         while Current <> nil do
         begin
-            if SameText(Current^.propietario, email) then
+            // Buscar correos donde el DESTINATARIO sea el usuario actual
+            if Current^.destinatario = destinatario then
             begin
-                SetLength(Vehicles, Count + 1);
-                Vehicles[Count].id := Current^.id;
-                Vehicles[Count].marca := Current^.marca;
-                Vehicles[Count].modelo := Current^.modelo;
-                Vehicles[Count].propietario := Current^.propietario;
+                SetLength(Emails, Count + 1);
+                Emails[Count].id := Current^.id;
+                Emails[Count].remitente := Current^.remitente;
+                Emails[Count].destinatario := Current^.destinatario;  // ← AÑADIDO
+                Emails[Count].estado := Current^.estado;
+                Emails[Count].programado := Current^.programado;
+                Emails[Count].asunto := Current^.asunto;
+                Emails[Count].fecha := Current^.fecha;
+                Emails[Count].mensaje := Current^.mensaje;
                 Inc(Count);
             end;
             Current := Current^.Next;
         end;
 
-        Result := Vehicles;
+        Result := Emails;
     end;
 
-
-    function LDE_V_GetVehicleById(id: string): TVehicleData;
+    function LDE_C_GetEmailById(id: string): TEmailData;
     var
         Current: PNode;
-        Vehicle: TVehicleData;
+        Email: TEmailData;
     begin
-        Vehicle.id := '';
-        Vehicle.marca := '';
-        Vehicle.modelo := '';
-        Vehicle.propietario := '';
+        // Inicializar con valores por defecto
+        Email.id := '';
+        Email.remitente := '';
+        Email.destinatario := '';
+        Email.estado := 'NL';
+        Email.programado := False;
+        Email.asunto := '';
+        Email.fecha := '';
+        Email.mensaje := '';
 
         Current := Head;
         while Current <> nil do
         begin
             if SameText(Current^.id, id) then
             begin
-                Vehicle.id := Current^.id;
-                Vehicle.marca := Current^.marca;
-                Vehicle.modelo := Current^.modelo;
-                Vehicle.propietario := Current^.propietario;
+                Email.id := Current^.id;
+                Email.remitente := Current^.remitente;
+                Email.destinatario := Current^.destinatario;
+                Email.estado := Current^.estado;
+                Email.programado := Current^.programado;
+                Email.asunto := Current^.asunto;
+                Email.fecha := Current^.fecha;
+                Email.mensaje := Current^.mensaje;
                 Break;
             end;
             Current := Current^.Next;
         end;
 
-        Result := Vehicle;
+        Result := Email;
     end;
 
-
-    procedure LDE_V_QuickSortById;
+    procedure LDE_C_QuickSortBySubject;
     type
-        // Definimos un tipo de arreglo dinámico de punteros a nodos
         PNodeArray = array of PNode;
 
-        // Procedimiento recursivo para ordenar el arreglo usando Quicksort
         procedure QuickSort(var Arr: PNodeArray; Low, High: Integer);
         var
-            i, j: Integer;       // índices para recorrer el arreglo
-            Pivot, Temp: PNode;  // pivot para comparación y temp para intercambio
+            i, j: Integer;
+            Pivot, Temp: PNode;
         begin
-            i := Low;                         // inicializamos i en el límite inferior
-            j := High;                        // inicializamos j en el límite superior
-            Pivot := Arr[(Low + High) div 2]; // elegimos el pivote como el elemento del medio
+            i := Low;
+            j := High;
+            Pivot := Arr[(Low + High) div 2];
 
             repeat
-                // Avanzar i mientras el id del nodo sea menor que el pivote
-                while Arr[i]^.id < Pivot^.id do Inc(i);
-                // Retroceder j mientras el id del nodo sea mayor que el pivote
-                while Arr[j]^.id > Pivot^.id do Dec(j);
+                while CompareText(Arr[i]^.asunto, Pivot^.asunto) < 0 do Inc(i);
+                while CompareText(Arr[j]^.asunto, Pivot^.asunto) > 0 do Dec(j);
 
                 if i <= j then
                 begin
-                    // Intercambiar Arr[i] y Arr[j]
                     Temp := Arr[i];
                     Arr[i] := Arr[j];
                     Arr[j] := Temp;
-
-                    Inc(i); // mover i a la derecha
-                    Dec(j); // mover j a la izquierda
+                    Inc(i);
+                    Dec(j);
                 end;
-            until i > j; // repetir hasta que los índices se crucen
+            until i > j;
 
-            // Llamadas recursivas a las sublistas izquierda y derecha
             if Low < j then QuickSort(Arr, Low, j);
             if i < High then QuickSort(Arr, i, High);
         end;
 
     var
-        Arr: PNodeArray; // arreglo dinámico de punteros a nodos
-        Current: PNode;  // puntero auxiliar para recorrer la lista
-        i: Integer;      // contador / índice
+        Arr: PNodeArray;
+        Current: PNode;
+        i: Integer;
     begin
-        // Contar la cantidad de nodos en la lista
+        // Contar nodos
         Current := Head;
         i := 0;
         while Current <> nil do
         begin
-            Inc(i);           // aumentar contador
-            Current := Current^.Next; // pasar al siguiente nodo
+            Inc(i);
+            Current := Current^.Next;
         end;
 
-        if i < 2 then Exit; // si hay 0 o 1 nodo, ya está ordenada
+        if i < 2 then Exit;
 
-        // Crear arreglo y llenarlo con punteros a los nodos
-        SetLength(Arr, i);  // dimensionar el arreglo
-        Current := Head;    // volver al inicio de la lista
+        // Crear arreglo con punteros a nodos
+        SetLength(Arr, i);
+        Current := Head;
         for i := 0 to High(Arr) do
         begin
-            Arr[i] := Current;       // guardar el puntero al nodo
-            Current := Current^.Next; // avanzar al siguiente
+            Arr[i] := Current;
+            Current := Current^.Next;
         end;
 
-        // Ordenar el arreglo por id usando Quicksort
+        // Ordenar por asunto
         QuickSort(Arr, 0, High(Arr));
 
-        // Reconstruir la lista doblemente enlazada con el orden del arreglo
-        Head := Arr[0];      // primer nodo ahora es el primero del arreglo
-        Head^.Prev := nil;   // no hay nodo anterior al primero
+        // Reconstruir lista
+        Head := Arr[0];
+        Head^.Prev := nil;
         for i := 0 to High(Arr)-1 do
         begin
-            Arr[i]^.Next := Arr[i+1]; // apuntar al siguiente nodo
-            Arr[i+1]^.Prev := Arr[i]; // apuntar al anterior nodo
+            Arr[i]^.Next := Arr[i+1];
+            Arr[i+1]^.Prev := Arr[i];
         end;
-        Tail := Arr[High(Arr)]; // el último nodo del arreglo es la cola
-        Tail^.Next := nil;       // no hay nodo después del último
+        Tail := Arr[High(Arr)];
+        Tail^.Next := nil;
+    end;
+
+    procedure LDE_C_MarkAsRead(emailId: string);
+    var
+        Current: PNode;
+    begin
+        Current := Head;
+        while Current <> nil do
+        begin
+            if Current^.id = emailId then
+            begin
+                Current^.estado := 'L';
+                Exit;
+            end;
+            Current := Current^.Next;
+        end;
+    end;
+
+    function LDE_C_GetUnreadCount(destinatario: string): Integer;
+    var
+        Current: PNode;
+        Count: Integer;
+    begin
+        Count := 0;
+        Current := Head;
+        while Current <> nil do
+        begin
+            if (Current^.remitente = destinatario) and (Current^.estado = 'NL') then
+                Inc(Count);
+            Current := Current^.Next;
+        end;
+        Result := Count;
     end;
 
 end.

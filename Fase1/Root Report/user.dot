@@ -31,5 +31,9 @@ digraph ListaEnlazada {
     nodo9 [label="{10 \n Ian Murdock \n imurdock \n imurdock@edd.com \n 41235678}"];
     nodo9 -> nodo10;
     nodo10 [label="{25 \n jose \n 123 \n jose \n jose@edd.com}"];
+    nodo10 -> nodo11;
+    nodo11 [label="{50 \n roberto \n 1 \n rob \n 1}"];
+    nodo11 -> nodo12;
+    nodo12 [label="{26 \n 1 \n 1 \n 1 \n 1}"];
   }
 }
